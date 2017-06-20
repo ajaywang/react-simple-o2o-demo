@@ -1,3 +1,3 @@
-/**
- * Created by ajay on 2017-06-19.
- */
+var path = require('path');
+var webpack = require('webpack');
+var HtmlWebpackPlugin = require('HtmlWebpackPlugin');
