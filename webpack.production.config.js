@@ -19,8 +19,8 @@ module.exports = {
         vendor: Object.keys(pkg.dependencies)
     },
     output: {
-        path: BUILD_PATH,
-        filename: "/js/[name].[chunkhash:8].js"
+        path: BUILD_PATH + "/js",
+        filename: "[name].[chunkhash:8].js"
     },
 
     resolve:{
@@ -29,7 +29,7 @@ module.exports = {
 
     module: {
         loaders: [
-            { test: /\.(js|jsx)$/, exclude: /node_modules/, loader: 'babel-loader' },
+            { test: /\.(js|jsx)$/, exclude: /node_modules/, loader: 'babel-loader', query: { presets: ['react', 'es2015'] } },
             { test: /\.less$/, exclude: /node_modules/, loader: ExtractTextPlugin.extract('style-loader!css-loader!postcss-loader!less-loader') },
             { test: /\.css$/, exclude: /node_modules/, loader: ExtractTextPlugin.extract('style-loader!css-loader!postcss-loader') },
             { test:/\.(png|gif|jpg|jpeg|bmp)$/i, loader:'url-loader?limit=5000&name=img/[name].[chunkhash:8].[ext]' },  // 限制大小5kb
@@ -50,7 +50,7 @@ module.exports = {
             }
         }),
         // 为组件分配ID，通过这个插件webpack可以分析和优先考虑使用最多的模块，并为它们分配最小的ID
-        new webpack.optimize.OccurenceOrderPlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.LoaderOptionsPlugin({
             options: {
                 postcss: function(){
@@ -74,7 +74,7 @@ module.exports = {
 // 提供公共代码
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            filename: '/js/[name].[chunkhash:8].js'
+            filename: "/js/[name].[chunkhash:8].js"
         }),
         // 可在业务 js 代码中使用 __DEV__ 判断是否是dev模式（dev模式下可以提示错误、测试报告等, production模式不提示）
         new webpack.DefinePlugin({
