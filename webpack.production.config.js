@@ -19,7 +19,7 @@ module.exports = {
         vendor: Object.keys(pkg.dependencies)
     },
     output: {
-        path: BUILD_PATH + "/js",
+        path: BUILD_PATH,
         filename: "[name].[chunkhash:8].js"
     },
 
@@ -30,8 +30,55 @@ module.exports = {
     module: {
         loaders: [
             { test: /\.(js|jsx)$/, exclude: /node_modules/, loader: 'babel-loader', query: { presets: ['react', 'es2015'] } },
-            { test: /\.less$/, exclude: /node_modules/, loader: ExtractTextPlugin.extract('style-loader!css-loader!postcss-loader!less-loader') },
-            { test: /\.css$/, exclude: /node_modules/, loader: ExtractTextPlugin.extract('style-loader!css-loader!postcss-loader') },
+            {
+                test: /\.less$/,
+                use:[
+                    'style-loader',
+                    {
+                        loader: "css-loader",
+                        options: {importLoaders: 1} //这里可以简单理解为，如果css文件中有 import 进来的文件也进行处理
+                    },
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: (loader) => [
+                                require('postcss-import')({root: loader.resourcePath}),
+                                require('autoprefixer')(), //css 浏览器兼容
+                                require('cssnano')() //压缩css
+                            ]
+                        }
+                    },
+                    {
+                        loader: "less-loader"
+                    }
+                ]
+                // exclude: /node_modules/,
+                // loader: 'style-loader!css-loader!postcss-loader!less-loader'
+            },
+            // { test: /\.less$/, exclude: /node_modules/, loader: ExtractTextPlugin.extract('style-loader!css-loader!postcss-loader!less-loader') },
+            {
+                test: /\.css$/,
+                use:[
+                    'style-loader',
+                    {
+                        loader: "css-loader",
+                        options: {importLoaders: 1} //这里可以简单理解为，如果css文件中有 import 进来的文件也进行处理
+                    },
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: (loader) => [
+                                require('postcss-import')({root: loader.resourcePath}),
+                                require('autoprefixer')(), //css 浏览器兼容
+                                require('cssnano')() //压缩css
+                            ]
+                        }
+                    }
+                ]
+                // exclude: /node_modules/,
+                // loader: 'style-loader!css-loader!postcss-loader'
+            },
+            // { test: /\.css$/, exclude: /node_modules/, loader: ExtractTextPlugin.extract('style-loader!css-loader!postcss-loader?name=css/[name].[chunkhash:8].[ext]') },
             { test:/\.(png|gif|jpg|jpeg|bmp)$/i, loader:'url-loader?limit=5000&name=img/[name].[chunkhash:8].[ext]' },  // 限制大小5kb
             { test:/\.(png|woff|woff2|svg|ttf|eot)($|\?)/i, loader:'url-loader?limit=5000&name=fonts/[name].[chunkhash:8].[ext]'} // 限制大小小于5k
         ]

@@ -27,8 +27,53 @@ module.exports = {
     module: {
         loaders: [
             { test: /\.(js|jsx)$/, exclude: /node_modules/, loader: 'babel-loader',query: { presets: ['react', 'es2015'] } },
-            { test: /\.less$/, exclude: /node_modules/, loader: 'style-loader!css-loader!postcss-loader!less-loader' },
-            { test: /\.css$/, exclude: /node_modules/, loader: 'style-loader!css-loader!postcss-loader' },
+            {
+                test: /\.less$/,
+                use:[
+                    'style-loader',
+                    {
+                        loader: "css-loader",
+                        options: {importLoaders: 1} //这里可以简单理解为，如果css文件中有 import 进来的文件也进行处理
+                    },
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: (loader) => [
+                                require('postcss-import')({root: loader.resourcePath}),
+                                require('autoprefixer')(), //css 浏览器兼容
+                                require('cssnano')() //压缩css
+                            ]
+                        }
+                    },
+                    {
+                        loader: "less-loader"
+                    }
+                ]
+                // exclude: /node_modules/,
+                // loader: 'style-loader!css-loader!postcss-loader!less-loader'
+            },
+            {
+                test: /\.css$/,
+                use:[
+                    'style-loader',
+                    {
+                        loader: "css-loader",
+                        options: {importLoaders: 1} //这里可以简单理解为，如果css文件中有 import 进来的文件也进行处理
+                    },
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            plugins: (loader) => [
+                                require('postcss-import')({root: loader.resourcePath}),
+                                require('autoprefixer')(), //css 浏览器兼容
+                                require('cssnano')() //压缩css
+                            ]
+                        }
+                    }
+                ]
+                // exclude: /node_modules/,
+                // loader: 'style-loader!css-loader!postcss-loader'
+            },
             { test:/\.(png|gif|jpg|jpeg|bmp)$/i, loader:'url-loader?limit=5000' },  // 限制大小5kb
             { test:/\.(png|woff|woff2|svg|ttf|eot)($|\?)/i, loader:'url-loader?limit=5000'} // 限制大小小于5k
         ]
@@ -39,17 +84,6 @@ module.exports = {
             template: __dirname + '/app/index.tmpl.html'
         }),
 
-        new webpack.LoaderOptionsPlugin({
-            options: {
-                postcss: function(){
-                    return [
-                        require("autoprefixer")({
-                            browsers: ['ie>=8','>1% in CN']
-                        })
-                    ]
-                }
-            }
-        }),
         // 热加载插件
         new webpack.HotModuleReplacementPlugin(),
 
@@ -71,4 +105,4 @@ module.exports = {
         inline: true, //实时刷新
         hot: true  // 使用热加载插件 HotModuleReplacementPlugin
     }
-}
+};
